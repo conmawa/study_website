@@ -15,7 +15,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
 
         $mysqli = require __DIR__ . "/database.php";
 
-        $sql = "INSERT INTO user (vorname, nachname, email, password) VALUES(?,?,?,?)";
+        $sql = "INSERT INTO user (vorname, nachname, email, password_hash) VALUES(?,?,?,?)";
 
         $stmt = $mysqli->stmt_init();
 
