@@ -15,7 +15,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
 
         $mysqli = require __DIR__ . "/database.php";
 
-        $sql = "INSERT INTO user (vorname, nachname, email, password_hash) VALUES(?,?,?,?)";
+        $sql = "INSERT INTO user (vorname, nachname, mail, password_hash) VALUES(?,?,?,?)";
 
         $stmt = $mysqli->stmt_init();
 
@@ -26,7 +26,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
         $stmt->bind_param("ssss", $vorname, $nachname, $email, $password_hash);
 
         if ($stmt->execute()){
-            header('Location: login.php');
+            header('Location: /.../index.php');
             exit;
         } else {
             if ($mysqli->errno === 1062) {
