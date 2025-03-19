@@ -1,13 +1,14 @@
 <?php
 $is_invalid = false;
 if($_SERVER["REQUEST_METHOD"] === "POST"){
-    $mysqli = require __DIR__ . "/database.php";
+    $mysqli = require 'database/database.php';
     $password = $_POST['password'];
     $email = $_POST['email'];
 
-    $result = $mysqli->query("SELECT id, email, password FROM user WHERE email='$email'");
+    $result = $mysqli->query("SELECT id, mail, password_hash FROM user WHERE mail='$email'");
     $user = $result->fetch_assoc();
-    $hash_password_from_db=$user['password'];
+
+    $hash_password_from_db = $user['password_hash'];
     
     if ($user){
         if (password_verify($password, $hash_password_from_db)){
@@ -33,11 +34,9 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
 <head>
     <meta charset="UTF-8">
     <script defer src="../js/show.js"></script>
-    <link rel="stylesheet" href="../css/login.css">
-    <link rel="stylesheet" href="../css/footer.css">
-    <link rel="stylesheet" href="../css/everything.css">
+    <link rel = 'stylesheet' type = 'text/css' href = 'design\main.css' />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Informatik-Hefter | Anmelden</title>
+    <title>Studium | Anmelden</title>
 </head>
 
 <body>
@@ -56,7 +55,6 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
             <!--<button onclick="show_password()">anzeigen/verstecken</button>-->
             <br>
             <input id="submit" type="submit" value="Anmelden">
-            <p>Sie haben noch kein Konto? <a id="register" href="database/register.php">Registrieren</a></p>
             <br>
         </form>
     </div>
