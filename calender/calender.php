@@ -22,9 +22,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
 
     if ($_POST['action'] === 'delete' && !empty($_POST['exam_name'])) {
         $exam_name = $_POST['exam_name'];
-        $delete_sql = "DELETE FROM exams WHERE name = ?";
+        $delete_sql = "DELETE FROM exams WHERE exam_name = ?";
         $stmt = $mysqli->prepare($delete_sql);
-        $stmt->bind_param("i", $exam_name);
+        $stmt->bind_param("s", $exam_name);
         if ($stmt->execute()) {
             echo "Prüfung gelöscht";
         } else {
@@ -66,6 +66,7 @@ $mysqli->close();
     <br>
     <br>
 
+    <h2>Prüfung hinzufügen</h2>
     <form id="examForm" method="POST" action="">
         <input type="hidden" name="action" value="add">
         <label for="exam_name">Prüfungsname:</label>

@@ -21,9 +21,7 @@ if (!isset($_SESSION['user_id'])) {
     <br>
  
     <div class="calender">
-        <?php
-        include 'calender/calender.php';
-        ?>
+        <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=Europe%2FBerlin&showPrint=0&showTitle=0&src=OWQ0ZDJmMzgyMTYwMWE3OTIxNTA1ZmYxOWIyMWQ0Njk5MDFiMzBiMzFjOGMyZmQ2NjI3YjEyOGIwMmMxMDUzOEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%233F51B5" style="border:solid 1px #777" width="800" height="800" frameborder="0" scrolling="yes"></iframe>
     </div>
 
     <div class="noten">
