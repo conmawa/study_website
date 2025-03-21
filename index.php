@@ -1,11 +1,14 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 $is_invalid = false;
 if($_SERVER["REQUEST_METHOD"] === "POST"){
     $mysqli = require 'database/database.php';
     $password = $_POST['password'];
     $email = $_POST['email'];
 
-    $result = $mysqli->query("SELECT id, mail, password_hash FROM user WHERE mail='$email'");
+    $result = $mysqli->query("SELECT user_id, mail, password_hash FROM user WHERE mail='$email'");
     $user = $result->fetch_assoc();
 
     $hash_password_from_db = $user['password_hash'];
@@ -13,7 +16,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
     if ($user){
         if (password_verify($password, $hash_password_from_db)){
             session_start();
-            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_id'] = $user['user_id'];
             header('Location: ../main.php');
             exit;
         }else{
@@ -33,8 +36,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
 
 <head>
     <meta charset="UTF-8">
-    <script defer src="../js/show.js"></script>
-    <link rel = 'stylesheet' type = 'text/css' href = 'design\main.css' />
+    <link rel = 'stylesheet' type = 'text/css' href = 'design\index.css' />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Studium | Anmelden</title>
 </head>

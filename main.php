@@ -1,7 +1,11 @@
 <?php
 session_start();
-?>
 
+if (!isset($_SESSION['user_id'])) {
+    header('Location: index.php'); 
+    exit;
+}
+?>
 
 <!DOCTYPE html>
 <html lang="de">
@@ -14,32 +18,24 @@ session_start();
 </head>
 
 <body>
-    <?php if (isset($_SESSION['user_id'])): ?>
-        <header class="header">
-            <div class="container">
-                <div class="menu">
-                    <ul">
-                        <li><a href="">Home</a></li>
-                        <li><a href="#">Kalender</a></li>
-                        <li><a href="#">Noten</a></li>
-                        <li><a href="#">Stundenplan</a></li>
-                        <li id="logout"><a href="database/logout.php">Abmelden</a></li>
-                    </ul>
-                </div>
-            </div>
-        </header>
+    <br>
+ 
+    <div class="calender">
+        <?php
+        include 'calender/calender.php';
+        ?>
+    </div>
 
-        <br>
-        <br>
+    <div class="noten">
+        <?php
+        include 'marks/noten.php';
+        ?>
+    </div>
 
-        <p id="index">
-            hi
-        </p>
-        
-    <?php else: ?>
-            <p id="login">Bitte melden Sie sich an, um den Inhalt sehen zu können!</p>
-            <a id="login" href="index.php">Anmelden</a>
-    <?php endif; ?>
+    <div class="stundenplan">
+        <h2>Stundenplan</h2>
+    </div>
+    
         
 </body>
-<html>
+</html>
