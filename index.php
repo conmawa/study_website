@@ -57,7 +57,6 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
             <!--<button onclick="show_password()">anzeigen/verstecken</button>-->
             <br>
             <input id="submit" type="submit" value="Anmelden">
-            <br>
         </form>
     </div>
 </body>

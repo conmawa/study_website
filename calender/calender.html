@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studium | Kalender</title>
+    <link rel="stylesheet" href="../design/main.css">
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="../javascript\calender.js"></script>
+</head>
+<body onload="handleClientLoad()">
+    <h1>Kalender</h1>
+    <button id="authorize_button" onclick="handleAuthClick()" style="display: none;">Anmelden</button>
+
+    <form id="eventForm" onsubmit="addEvent(); return false;">
+        <label for="eventTitle">Titel</label>
+        <input type="text" id="eventTitle" placeholder="Titel" required>
+        <br>
+        <label for="eventStart">Start</label>
+        <input type="datetime-local" id="eventStart" required>
+        <br>
+        <label for="eventEnd">Ende</label>
+        <input type="datetime-local" id="eventEnd" required>
+        <br>
+        <input id="submit" type="submit" value="Termin hinzufügen">
+    </form>
+
+    <div id="calendar"></div>
+</body>
+</html>

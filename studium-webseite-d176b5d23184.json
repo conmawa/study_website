@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "studium-webseite",
+  "private_key_id": "d176b5d231842d597c5f46b7be55a5b78a8228cb",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCf7gfRFIgs8jYD\n6Mwlc+8w3X0hdvzNY7P66c6rvtG/yCJUhS/6q4Gs5VbYCMx/lmMr9deqL4JLM8Lu\nlSbxpcD2tqIQE3mjiUJrmSnpA9TsEnb8knDtM/zZ/8CSM6iXCxZBJozAot7H7qui\nVGvHqTcZrasBzJ0Q0LRy4sPj1ojIKRAGPdR/ZWIfYVHFkYVtBN6ILyxfW8a4K+h6\nRYEochmyuPa8EbzkXk6qWdW5nIpHcdsOe31qaAbDxv1z1XsWfaJ85d2/IYBu4fI8\nycl6kEdvdKH6GVF/06ijv40zhUourF9jKXmABWRklVmHuNUOPnVPDNZfBymgiHJT\n8LhYmNH9AgMBAAECggEAKanH7YbsxtC+k5wk+qjOKiu5OmuWBiewLnCUf5dxawXH\nM7+StTnSyWjhi9wW8jIKWdxst5Ay4EZ2xNKkV5V3xI3lgEyihqDuZbt7+JEf+fQB\nfWDk/FZry5rd3viINfkUbhqN1m1XnjwmCF73yQbjLNRaVVipnkTQjZFXuNYdwg7O\n2lA7x6PgBqt4wlJqQPIipILe1oNMry9Zxvn+b9+Csx6oxvHrJP9Yg01QghtiCAM6\nXE+wEdDjrDfOyX4DjHLGWG+I7YaC+AIAhj0vmYE2kF8SO8oF+JBZfFIM3ktEid11\nSnLgEvSByMX+diQxzrrRbnv2Iv6QlQAtVyRLDrNm3QKBgQDWvDCXr4eskAXe633E\nDx045fOmjZspVMhZLnBzQsbA7Ayb8sEDI8EvJz9+juI+iGZ0ohx5zFF+Svv1O/+g\nBJn3hT0Z7SQDYiRxTCSpsE8Ipfw9enS5maBfaGq74Y8EmJPsogI3IVCUMPBFW/8A\nOE42C3o+vFOE9sotNl53nJOnewKBgQC+qbcEpQwP4NgyJ2p1o7aPt5eF+oFV169q\ny3u56lGBq+NH4mP9+nR3LMR8NjrmrYby2mZLtAaG1fnvQ0tKovSlBsaCKKLt/rxi\n17LYtMFyWBZ8He9y/TZE6xaK/bih2FdJoExNe73nYQGe9Q+0jcaewky5VCZ98F7i\noJVLM1525wKBgDegPnI8zUedc3fgxw6P38EKiIh/rE8ToGbBye2BwdzeCRIo22kF\nzRh68U7GksMiMHBMQlYm4IF3yTco2LpKFtxwzng13xtlRA15bRHsEz0pSmNeongl\n3M56TRPohVTqdX9aJHrFjYsl9kfxYehbrZ8AcCVqQbRy/cKij+wqSnGbAoGADA8N\n3URXE/YDloB5skENfd99vOKQJY7DsHx4MdUJHKtzb4t5CYo6rYLuVnDTnt1gyKFZ\nkPYs54BHE4PtEiZmVL2t9nN9gpH29kVwMVaVWZcKrQTzrREoyokX3uiXMd1OAAEc\nclYeN7Eh+hzDxoalBkuBsMMKwDJgvfKsHpp8IgcCgYAPX4ItEPi459PNPDfqBzxq\nWCpgv76okAdhTivAd6BEsD1RcnXfwiaP/2wJ8LDXa/5zPbWA0GKL5W3V638dGIcx\nzxXuiSXCVFFo2mWykDZzFlBQ+NJiNj/9g8VbCcmDswo2o07NUpFy8/8GJnqWjE+G\nR2/vKxfJhy790zWsV83whQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "studium-webseite@studium-webseite.iam.gserviceaccount.com",
+  "client_id": "111961941218277161112",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/studium-webseite%40studium-webseite.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
