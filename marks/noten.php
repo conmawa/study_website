@@ -8,7 +8,7 @@ $mysqli = require __DIR__ . '/../database/database.php';
 $subjects_sql = "SELECT * FROM faecher";
 $subjects_result = $mysqli->query($subjects_sql);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['name']) && !empty($_POST['wert'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['fach']) && !empty($_POST['wert'])) {
     $fach = $_POST['fach'];
     $wert = $_POST['wert'];
 
@@ -31,6 +31,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['name']) && !empty($_P
 </head>
 <body>
     <h1>Noten</h1>
+    <table>
+        <tr>
+            <th>Fach</th>
+            <th>Wert</th>
+        </tr>
+        <?php
+        $marks_sql = "SELECT faecher.name, noten.wert FROM noten INNER JOIN faecher ON noten.faecher_id = faecher.faecher_id ORDER BY faecher.name";
+        $marks_result = $mysqli->query($marks_sql);
+
+        if ($marks_result->num_rows > 0) {
+            while($row = $marks_result->fetch_assoc()) {
+                echo "<tr><td>" . $row['name'] . "</td><td>" . $row['wert'] . "</td></tr>";
+            }
+        } else {
+            echo "<tr><td colspan='2'>Keine Noten vorhanden</td></tr>";
+        }
+
+        // Calculate and display the average grade
+        $average_sql = "SELECT AVG(wert) as average_wert FROM noten";
+        $average_result = $mysqli->query($average_sql);
+        if ($average_result->num_rows > 0) {
+            $average_row = $average_result->fetch_assoc();
+            echo "<tr><td><strong>Durchschnitt</strong></td><td><strong>" . round($average_row['average_wert'], 2) . "</strong></td></tr>";
+        }
+        ?>
+    </table>
+    <br><br>
+    <h2>Neue Note hinzufügen</h2>
     <form method="post" action="">
         <label for="fach">Fach:</label>
         <select name="fach" id="fach" required>
