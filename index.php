@@ -8,7 +8,7 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
     $password = $_POST['password'];
     $email = $_POST['email'];
 
-    $result = $mysqli->query("SELECT user_id, mail, password_hash FROM user WHERE mail='$email'");
+    $result = $mysqli->query("SELECT user_id, mail, password_hash, vorname, nachname FROM user WHERE mail='$email'");
     $user = $result->fetch_assoc();
 
     $hash_password_from_db = $user['password_hash'];
@@ -17,7 +17,9 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
         if (password_verify($password, $hash_password_from_db)){
             session_start();
             $_SESSION['user_id'] = $user['user_id'];
-            header('Location: ../main.php');
+            $_SESSION['vorname'] = $user['vorname'];
+            $_SESSION['nachname'] = $user['nachname'];  
+            header('Location: main.php');
             exit;
         }else{
             $is_invalid = true;

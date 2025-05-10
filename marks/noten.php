@@ -8,7 +8,20 @@ $mysqli = require __DIR__ . '/../database/database.php';
 $subjects_sql = "SELECT * FROM faecher";
 $subjects_result = $mysqli->query($subjects_sql);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['fach']) && !empty($_POST['wert'])) {
+// Note löschen, wenn delete_id übergeben wird
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_id'])) {
+    $delete_id = intval($_POST['delete_id']); // ID sicherstellen
+    $delete_sql = "DELETE FROM noten WHERE noten_id = $delete_id";
+
+    if ($mysqli->query($delete_sql) === TRUE) {
+        echo "Note erfolgreich gelöscht.";
+    } else {
+        echo "Fehler beim Löschen: " . $mysqli->error;
+    }
+}
+
+// Neue Note hinzufügen
+if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['fach']) && !empty($_POST['wert']) && !isset($_POST['delete_id'])) {
     $fach = $_POST['fach'];
     $wert = $_POST['wert'];
 
@@ -35,17 +48,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['fach']) && !empty($_P
         <tr>
             <th>Fach</th>
             <th>Wert</th>
+            <th>Aktionen</th>
         </tr>
         <?php
-        $marks_sql = "SELECT faecher.name, noten.wert FROM noten INNER JOIN faecher ON noten.faecher_id = faecher.faecher_id ORDER BY faecher.name";
+        $marks_sql = "SELECT noten.noten_id, faecher.name, noten.wert FROM noten INNER JOIN faecher ON noten.faecher_id = faecher.faecher_id ORDER BY faecher.name";
         $marks_result = $mysqli->query($marks_sql);
 
         if ($marks_result->num_rows > 0) {
             while($row = $marks_result->fetch_assoc()) {
-                echo "<tr><td>" . $row['name'] . "</td><td>" . $row['wert'] . "</td></tr>";
+                echo "<tr>
+                        <td>" . htmlspecialchars($row['name']) . "</td>
+                        <td>" . htmlspecialchars($row['wert']) . "</td>
+                        <td>
+                            <form method='POST' action='' style='display:inline;'>
+                                <input type='hidden' name='delete_id' value='" . $row['noten_id'] . "'>
+                                <button type='submit' title='Löschen' style='border:none;background:none;cursor:pointer;'>🗑️</button>
+                            </form>
+                        </td>
+                      </tr>";
             }
         } else {
-            echo "<tr><td colspan='2'>Keine Noten vorhanden</td></tr>";
+            echo "<tr><td colspan='3'>Keine Noten vorhanden</td></tr>";
         }
 
         // Calculate and display the average grade
@@ -53,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['fach']) && !empty($_P
         $average_result = $mysqli->query($average_sql);
         if ($average_result->num_rows > 0) {
             $average_row = $average_result->fetch_assoc();
-            echo "<tr><td><strong>Durchschnitt</strong></td><td><strong>" . round($average_row['average_wert'], 2) . "</strong></td></tr>";
+            echo "<tr><td><strong>Durchschnitt</strong></td><td><strong>" . round($average_row['average_wert'], 2) . "</strong></td><td></td></tr>";
         }
         ?>
     </table>
@@ -65,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['fach']) && !empty($_P
             <?php
             if ($subjects_result->num_rows > 0) {
                 while($row = $subjects_result->fetch_assoc()) {
-                    echo "<option value='" . $row['name'] . "'>" . $row['name'] . "</option>";
+                    echo "<option value='" . htmlspecialchars($row['name']) . "'>" . htmlspecialchars($row['name']) . "</option>";
                 }
             } else {
                 echo "<option value=''>No subjects available</option>";
