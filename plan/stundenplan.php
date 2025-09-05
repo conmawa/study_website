@@ -17,22 +17,78 @@
             <th>Donnerstag</th>
             <th>Freitag</th>
         </tr>
-        <?php
-        $startTime = strtotime("08:00");
-        $endTime = strtotime("20:00");
-        while ($startTime < $endTime) {
-            $endSlot = strtotime("+90 minutes", $startTime);
-            $breakStart = $endSlot;
-            $breakEnd = strtotime("+20 minutes", $breakStart);
-            echo "<tr>";
-            echo "<td>" . date("H:i", $startTime) . " - " . date("H:i", $endSlot) . "</td>";
-            for ($i = 0; $i < 5; $i++) {
-                echo "<td></td>";
-            }
-            echo "</tr>";
-            $startTime = $breakEnd;
-        }
-        ?>
+        <tr>
+            <th>8:00 - 8:45</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr>
+            <th>8:45 - 9:30</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr>
+            <th>10:00 - 10:45</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr>
+            <th>10:45 - 11:30</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr>
+            <th>12:00 - 12:45</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr>
+            <th>12:45 - 13:30</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr>
+            <th>13:30 - 14:15</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr>
+            <th>14:30 - 15:15</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr>
+            <th>15:15 - 16:00</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
     </table>
 </body>
 </html>
