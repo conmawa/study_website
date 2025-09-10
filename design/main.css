@@ -49,7 +49,7 @@ input[type="submit"]:hover {
     background-color: #0056b3;
 }
 
-input[type="text"] {
+input[type="text"], input[type="datetime-local"] , input[type='time'], input[type='number'] {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
