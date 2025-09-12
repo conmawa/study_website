@@ -13,6 +13,7 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" type = 'text/css' href = 'design\main.css'/>
+    <link rel="icon" type="image/x-icon" href="design\favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://apis.google.com/js/api.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -27,6 +28,10 @@ if (!isset($_SESSION['user_id'])) {
         <?php
             include 'calender/calender.html';
         ?>
+    </div>
+
+    <div class="to-do">
+        ... in Bearbeitung ...
     </div>
 
     <div class="stundenplan">

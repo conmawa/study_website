@@ -16,7 +16,7 @@ h1#head{
     width: 80%;
 }
 
-.calender, .faecher, .noten, .stundenplan {
+.calender, .faecher, .noten, .stundenplan, .to-do {
     background: white;
     padding: 20px;
     margin: 20px auto;
