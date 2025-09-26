@@ -5,7 +5,7 @@ ini_set('display_errors', 1);
 $mysqli = require __DIR__ . '/../database/database.php';
 
 // Fetch subjects
-$subjects_sql = "SELECT * FROM faecher";
+$subjects_sql = "SELECT * FROM faecher Order By name ASC";
 $subjects_result = $mysqli->query($subjects_sql);
 
 // Note löschen, wenn delete_id übergeben wird

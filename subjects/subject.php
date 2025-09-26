@@ -61,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['fach']) && !empty($_P
             <th>Aktionen</th>
         </tr>
         <?php
-        $subjects_sql = "SELECT * FROM faecher";
+        $subjects_sql = "SELECT * FROM faecher ORDER BY name ASC";
         $subjects_result = $mysqli->query($subjects_sql);
 
         if ($subjects_result->num_rows > 0) {

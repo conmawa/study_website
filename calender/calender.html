@@ -57,161 +57,206 @@
             function gapiLoaded() { gapi.load('client', initializeGapiClient); }
 
             async function initializeGapiClient() {
-            await gapi.client.init({
-                apiKey: API_KEY,
-                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
-            });
-            gapiInited = true;
-            document.getElementById("status").textContent = "✅ GAPI bereit, bitte einloggen";
-            maybeEnableButtons();
+                await gapi.client.init({
+                    apiKey: API_KEY,
+                    discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
+                });
+                gapiInited = true;
+                document.getElementById("status").textContent = "✅ GAPI bereit, bitte einloggen";
+                maybeEnableButtons();
             }
 
             function gisLoaded() {
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: CLIENT_ID,
-                scope: SCOPES,
-                callback: (tokenResponse) => {
-                accessToken = tokenResponse.access_token;
-                gapi.client.setToken({ access_token: accessToken });
-                document.getElementById("status").textContent = "✅ Eingeloggt!";
-                loadCalendars();
-                },
-            });
-            gisInited = true;
-            maybeEnableButtons();
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: CLIENT_ID,
+                    scope: SCOPES,
+                    callback: (tokenResponse) => {
+                        accessToken = tokenResponse.access_token;
+                        localStorage.setItem("gcal_token", accessToken); // speichern
+                        gapi.client.setToken({ access_token: accessToken });
+                        document.getElementById("status").textContent = "✅ Eingeloggt!";
+                        document.getElementById("status").hidden = true;
+                        document.getElementById("loginBtn").hidden = true;
+                        loadCalendars();
+                    },
+                });
+                gisInited = true;
+                maybeEnableButtons();
             }
 
             function maybeEnableButtons() {
-            if (gapiInited && gisInited) {
-                document.getElementById("loginBtn").disabled = false;
-            }
-            }
-
-            document.getElementById("loginBtn").addEventListener("click", () => {
-            tokenClient.requestAccessToken({ prompt: '' });
-            });
-
-            async function loadCalendars() {
-            try {
-                const response = await gapi.client.calendar.calendarList.list();
-                const select = document.getElementById("calendarSelect");
-                select.innerHTML = '';
-                response.result.items.forEach(cal => {
-                const option = document.createElement("option");
-                option.value = cal.id;
-                option.textContent = cal.summary;
-                select.appendChild(option);
-                });
-                if (response.result.items.length) {
-                const firstCalendar = select.value;
-                loadEvents(firstCalendar);
-                updateIframe(firstCalendar);
+                if (gapiInited && gisInited) {
+                    document.getElementById("loginBtn").disabled = false;
                 }
-            } catch (err) {
-                console.error(err);
-                alert("Fehler beim Laden der Kalender: " + err.message);
-            }
             }
 
-            async function loadEvents(calendarId) {
-            try {
-                const response = await gapi.client.calendar.events.list({
-                'calendarId': calendarId,
-                'showDeleted': false,
-                'singleEvents': true,
-                'orderBy': 'startTime',
-                'timeMin': (new Date()).toISOString(),
-                'maxResults': 50
-                });
-
-                const eventSelect = document.getElementById("eventSelect");
-                eventSelect.innerHTML = '<option value="">-- Neuer Termin --</option>';
-                response.result.items.forEach(ev => {
-                const option = document.createElement("option");
-                option.value = ev.id;
-                const start = ev.start.dateTime ? new Date(ev.start.dateTime).toLocaleString() : ev.start.date;
-                option.textContent = `${start} - ${ev.summary}`;
-                option.dataset.start = ev.start.dateTime || ev.start.date;
-                option.dataset.end = ev.end.dateTime || ev.end.date;
-                option.dataset.title = ev.summary;
-                eventSelect.appendChild(option);
-                });
-            } catch (err) {
-                console.error(err);
-                alert("Fehler beim Laden der Termine: " + err.message);
-            }
-            }
-
-            document.getElementById("eventSelect").addEventListener("change", (e) => {
-            const selected = e.target.selectedOptions[0];
-            if (selected.value) {
-                document.getElementById("title").value = selected.dataset.title;
-                document.getElementById("start").value = new Date(selected.dataset.start).toISOString().slice(0,16);
-                document.getElementById("end").value = new Date(selected.dataset.end).toISOString().slice(0,16);
-            } else {
-                document.getElementById("title").value = '';
-                document.getElementById("start").value = '';
-                document.getElementById("end").value = '';
-            }
+            // Login-Button: nur beim ersten Mal "consent", danach reicht prompt: ""
+            document.getElementById("loginBtn").addEventListener("click", () => {
+                tokenClient.requestAccessToken({ prompt: 'consent' });
             });
 
-            // Kalenderwechsel lädt Termine + iFrame
+            // Hilfsfunktion: stilles Refresh anfordern
+            function refreshToken(callback) {
+                tokenClient.callback = (tokenResponse) => {
+                    accessToken = tokenResponse.access_token;
+                    localStorage.setItem("gcal_token", accessToken);
+                    gapi.client.setToken({ access_token: accessToken });
+                    if (callback) callback();
+                };
+                tokenClient.requestAccessToken({ prompt: '' });
+            }
+
+            // Wrapper für API-Calls mit Fallback
+            async function safeApiCall(fn) {
+                try {
+                    return await fn();
+                } catch (err) {
+                    if (err.status === 401) {
+                        console.warn("⚠️ Token abgelaufen, hole neues...");
+                        return new Promise((resolve, reject) => {
+                            refreshToken(async () => {
+                                try {
+                                    resolve(await fn());
+                                } catch (e) {
+                                    reject(e);
+                                }
+                            });
+                        });
+                    }
+                    throw err;
+                }
+            }
+
+            // Kalender laden
+            async function loadCalendars() {
+                try {
+                    const response = await safeApiCall(() =>
+                        gapi.client.calendar.calendarList.list()
+                    );
+                    const select = document.getElementById("calendarSelect");
+                    select.innerHTML = '';
+                    response.result.items.forEach(cal => {
+                        const option = document.createElement("option");
+                        option.value = cal.id;
+                        option.textContent = cal.summary;
+                        select.appendChild(option);
+                    });
+                    if (response.result.items.length) {
+                        const firstCalendar = select.value;
+                        loadEvents(firstCalendar);
+                        updateIframe(firstCalendar);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Fehler beim Laden der Kalender: " + err.message);
+                }
+            }
+
+            // Events laden
+            async function loadEvents(calendarId) {
+                try {
+                    const response = await safeApiCall(() =>
+                        gapi.client.calendar.events.list({
+                            'calendarId': calendarId,
+                            'showDeleted': false,
+                            'singleEvents': true,
+                            'orderBy': 'startTime',
+                            'timeMin': (new Date()).toISOString(),
+                            'maxResults': 50
+                        })
+                    );
+
+                    const eventSelect = document.getElementById("eventSelect");
+                    eventSelect.innerHTML = '<option value="">-- Neuer Termin --</option>';
+                    response.result.items.forEach(ev => {
+                        const option = document.createElement("option");
+                        option.value = ev.id;
+                        const start = ev.start.dateTime ? new Date(ev.start.dateTime).toLocaleString() : ev.start.date;
+                        option.textContent = `${start} - ${ev.summary}`;
+                        option.dataset.start = ev.start.dateTime || ev.start.date;
+                        option.dataset.end = ev.end.dateTime || ev.end.date;
+                        option.dataset.title = ev.summary;
+                        eventSelect.appendChild(option);
+                    });
+                } catch (err) {
+                    console.error(err);
+                    alert("Fehler beim Laden der Termine: " + err.message);
+                }
+            }
+
+            // Event speichern (neu oder Update)
+            document.getElementById("eventForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                if (!accessToken) { alert("Bitte zuerst einloggen!"); return; }
+
+                const calendarId = document.getElementById("calendarSelect").value;
+                const eventSelect = document.getElementById("eventSelect");
+                const eventId = eventSelect.value;
+                const title = document.getElementById("title").value;
+                const start = new Date(document.getElementById("start").value).toISOString();
+                const end = new Date(document.getElementById("end").value).toISOString();
+
+                const event = {
+                    'summary': title,
+                    'start': { 'dateTime': start, 'timeZone': 'Europe/Berlin' },
+                    'end': { 'dateTime': end, 'timeZone': 'Europe/Berlin' },
+                };
+
+                try {
+                    let response;
+                    if (eventId) {
+                        response = await safeApiCall(() =>
+                            gapi.client.calendar.events.update({
+                                'calendarId': calendarId,
+                                'eventId': eventId,
+                                'resource': event
+                            })
+                        );
+                    } else {
+                        response = await safeApiCall(() =>
+                            gapi.client.calendar.events.insert({
+                                'calendarId': calendarId,
+                                'resource': event
+                            })
+                        );
+                    }
+                    alert("Termin gespeichert");
+                    loadEvents(calendarId);
+                    updateIframe(calendarId);
+                } catch (err) {
+                    console.error(err);
+                    alert("Fehler: " + err.message);
+                }
+            });
+
+            // Kalenderwechsel lädt Events + iFrame
             document.getElementById("calendarSelect").addEventListener("change", (e) => {
-            const calId = e.target.value;
-            loadEvents(calId);
-            updateIframe(calId);
+                const calId = e.target.value;
+                loadEvents(calId);
+                updateIframe(calId);
             });
 
             // iFrame-URL aktualisieren
             function updateIframe(calendarId) {
-            const iframe = document.getElementById("calendarFrame");
-            const base = "https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=Europe%2FBerlin&showPrint=0&showTitle=0&showTz=0";
-            iframe.src = `${base}&src=${encodeURIComponent(calendarId)}`;
+                const iframe = document.getElementById("calendarFrame");
+                const base = "https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=Europe%2FBerlin&showPrint=0&showTitle=0&showTz=0";
+                iframe.src = `${base}&src=${encodeURIComponent(calendarId)}`;
             }
 
-            document.getElementById("eventForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            if (!accessToken) { alert("Bitte zuerst einloggen!"); return; }
-
-            const calendarId = document.getElementById("calendarSelect").value;
-            const eventSelect = document.getElementById("eventSelect");
-            const eventId = eventSelect.value;
-            const title = document.getElementById("title").value;
-            const start = new Date(document.getElementById("start").value).toISOString();
-            const end = new Date(document.getElementById("end").value).toISOString();
-
-            const event = {
-                'summary': title,
-                'start': { 'dateTime': start, 'timeZone': 'Europe/Berlin' },
-                'end': { 'dateTime': end, 'timeZone': 'Europe/Berlin' },
-            };
-
-            try {
-                let response;
-                if (eventId) {
-                response = await gapi.client.calendar.events.update({
-                    'calendarId': calendarId,
-                    'eventId': eventId,
-                    'resource': event
-                });
-                } else {
-                response = await gapi.client.calendar.events.insert({
-                    'calendarId': calendarId,
-                    'resource': event
-                });
-                }
-                alert("Termin gespeichert");
-                loadEvents(calendarId);
-                updateIframe(calendarId);
-            } catch (err) {
-                console.error(err);
-                alert("Fehler: " + err.message);
-            }
-            });
-
+            // Beim Laden prüfen, ob Token gespeichert ist
             window.onload = () => {
-            gapiLoaded();
-            gisLoaded();
+                gapiLoaded();
+                gisLoaded();
+
+                const savedToken = localStorage.getItem("gcal_token");
+                if (savedToken) {
+                    refreshToken(() => {
+                        document.getElementById("status").textContent = "✅ Automatisch eingeloggt!";
+                        document.getElementById("status").hidden = true;
+                        document.getElementById("loginBtn").hidden = true;
+                        loadCalendars();
+                    });
+                }
             };
         </script>
     </body>
