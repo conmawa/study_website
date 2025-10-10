@@ -30,10 +30,6 @@ if (!isset($_SESSION['user_id'])) {
         ?>
     </div>
 
-    <div class="to-do">
-        ... in Bearbeitung ...
-    </div>
-
     <div class="stundenplan">
         <?php
             include 'plan/stundenplan.php';
@@ -48,7 +44,7 @@ if (!isset($_SESSION['user_id'])) {
     
     <div class="faecher">
         <?php
-            include 'subjects/subject.php';
+            include 'subjects/subject2.php';
         ?>
     </div>
         

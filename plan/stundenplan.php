@@ -1,147 +1,120 @@
 <?php
-
 $mysqli = require __DIR__ . '/../database/database.php';
 
-// Fach in Stundenplan eintragen
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['faecher_id'], $_POST['tag'], $_POST['zeitslot'])) {
-    $faecher_id = intval($_POST['faecher_id']);
-    $tag = $_POST['tag'];
-    $zeitslot = $_POST['zeitslot'];
+// Zeiten und Tage definieren
+$zeiten = ["08:00 - 09:30","09:45 - 11:15","11:30 - 13:00","14:00 - 15:30"];
+$tage = ["Montag","Dienstag","Mittwoch","Donnerstag","Freitag"];
 
-    $insert_sql = "INSERT INTO schedule (faecher_id, tag, zeitslot) VALUES ('$faecher_id', '$tag', '$zeitslot')";
-    if ($mysqli->query($insert_sql) === TRUE) {
-        echo "<p style='color:green;'>Fach erfolgreich eingetragen.</p>";
-    } else {
-        echo "<p style='color:red;'>Fehler: " . $mysqli->error . "</p>";
-    }
-}
-
-// Eintrag löschen
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_id'])) {
-    $delete_id = intval($_POST['delete_id']);
-    $delete_sql = "DELETE FROM schedule WHERE id = $delete_id";
-    if ($mysqli->query($delete_sql) === TRUE) {
-        echo "<p style='color:green;'>Eintrag gelöscht.</p>";
-    } else {
-        echo "<p style='color:red;'>Fehler beim Löschen: " . $mysqli->error . "</p>";
-    }
-}
-
-// Alle Fächer holen
-$faecher_result = $mysqli->query("SELECT * FROM faecher Order By name ASC");
-
-// Stundenplan holen
+// Stundenplan für erste Anzeige laden
 $plan_sql = "
-    SELECT schedule.schedule_id, schedule.tag, schedule.zeitslot, faecher.name, faecher.raum, faecher.dozent
-    FROM schedule
-    JOIN faecher ON schedule.faecher_id = faecher.faecher_id
+    SELECT s.schedule_id, s.tag, s.zeitslot, s.raum, f.name, f.dozent
+    FROM schedule s
+    JOIN faecher f ON s.faecher_id = f.faecher_id
 ";
 $plan_result = $mysqli->query($plan_sql);
 
-// Daten in Array: [zeitslot][tag] = Fach
 $plan = [];
-if ($plan_result->num_rows > 0) {
-    while ($row = $plan_result->fetch_assoc()) {
-        $plan[$row['zeitslot']][$row['tag']] = $row;
-    }
+while($row = $plan_result->fetch_assoc()) {
+    $plan[$row['zeitslot']][$row['tag']][] = $row;
 }
-
-// Zeit-Slots und Tage definieren
-$zeiten = [
-    "08:00 - 09:30",
-    "09:45 - 11:15",
-    "11:30 - 13:00",
-    "14:00 - 15:30",
-];
-
-$tage = ["Montag","Dienstag","Mittwoch","Donnerstag","Freitag"];
 ?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type='text/css' href='../design/main.css' />
-    <title>Studium | Stundenplan</title>
+    <title>Stundenplan</title>
+    <link rel="stylesheet" href="../design/main.css">
+    
     <style>
-        table, th, td {
-            border: 1px solid black;
-            border-collapse: collapse;
-            text-align: center;
-            padding: 8px;
-        }
-        th {
-            background: #eee;
-        }
-        td {
-            min-width: 120px;
-            vertical-align: top;
-        }
+        table, th, td { border:1px solid black; border-collapse:collapse; text-align:center; padding:8px; }
+        th { background:#eee; }
+        td { min-width:120px; vertical-align:top; }
+        #scheduleModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); }
+        #scheduleModal .modalContent { background:white; margin:5% auto; padding:20px; width:80%; max-width:800px; position:relative; }
+        #scheduleModal .closeBtn { position:absolute; top:10px; right:10px; cursor:pointer; font-size:18px; }
+        button { cursor:pointer; }
     </style>
 </head>
 <body>
     <h1>Stundenplan</h1>
 
-    <!-- Formular -->
-    <h2>Fach zu Stundenplan hinzufügen</h2>
-    <form method="POST" action="">
-        <label for="faecher_id">Fach:</label>
-        <select id="faecher_id" name="faecher_id" required>
-            <option value="">-- Bitte wählen --</option>
-            <?php
-            if ($faecher_result->num_rows > 0) {
-                while ($fach = $faecher_result->fetch_assoc()) {
-                    echo "<option value='" . $fach['faecher_id'] . "'>" . htmlspecialchars($fach['name']) . " (" . htmlspecialchars($fach['dozent']) . ")</option>";
-                }
-            }
-            ?>
-        </select>
+    <!-- Button zum Öffnen des Modals -->
+    <button id="editScheduleBtn">Stundenplan bearbeiten</button>
 
-        <label for="tag">Tag:</label>
-        <select id="tag" name="tag" required>
-            <?php foreach ($tage as $t): ?>
-                <option value="<?= $t ?>"><?= $t ?></option>
-            <?php endforeach; ?>
-        </select>
-
-        <label for="zeitslot">Zeit:</label>
-        <select id="zeitslot" name="zeitslot" required>
-            <?php foreach ($zeiten as $z): ?>
-                <option value="<?= $z ?>"><?= $z ?></option>
-            <?php endforeach; ?>
-        </select>
-
-        <button type="submit">Hinzufügen</button>
-    </form>
-
-    <br><br>
-
-    <!-- Raster-Stundenplan -->
+    <!-- Stundenplan Tabelle (nur Anzeige) -->
+    <h2>Stundenplan Übersicht</h2>
     <table>
         <tr>
             <th>Uhrzeit</th>
-            <?php foreach ($tage as $t): ?>
+            <?php foreach($tage as $t): ?>
                 <th><?= $t ?></th>
             <?php endforeach; ?>
         </tr>
-        <?php foreach ($zeiten as $z): ?>
+        <?php foreach($zeiten as $z): ?>
             <tr>
                 <th><?= $z ?></th>
-                <?php foreach ($tage as $t): ?>
+                <?php foreach($tage as $t): ?>
                     <td>
-                        <?php if (isset($plan[$z][$t])): 
-                            $eintrag = $plan[$z][$t]; ?>
-                            <b><?= htmlspecialchars($eintrag['name']) ?></b><br>
-                            <?= htmlspecialchars($eintrag['raum']) ?><br>
-                            <i><?= htmlspecialchars($eintrag['dozent']) ?></i><br>
-                            <form method="POST" action="" style="margin-top:5px;">
-                                <input type="hidden" name="delete_id" value="<?= $eintrag['id'] ?>">
-                                <button type="submit" style="border:none;background:none;cursor:pointer;">🗑️</button>
-                            </form>
-                        <?php endif; ?>
+                        <?php
+                        if(isset($plan[$z][$t])) {
+                            foreach($plan[$z][$t] as $eintrag) {
+                                echo "<b>".htmlspecialchars($eintrag['name'])."</b><br>";
+                                echo htmlspecialchars($eintrag['raum'])."<br>";
+                                echo "<i>".htmlspecialchars($eintrag['dozent'])."</i><br><hr>";
+                            }
+                        }
+                        ?>
                     </td>
                 <?php endforeach; ?>
             </tr>
         <?php endforeach; ?>
     </table>
+
+    <div id="scheduleModalOverlay" class="modal-overlay">
+        <div id="modal-content">
+            <h2>Stundenplan bearbeiten</h2>
+
+            <!-- Neues Fach hinzufügen -->
+            <h3>Fach zum Stundenplan hinzufügen</h3>
+            <label for="newFach">Fach:</label>
+            <select id="newFach">
+                <option value="">-- Bitte wählen --</option>
+                <?php
+                $faecher_result = $mysqli->query("SELECT * FROM faecher ORDER BY name ASC");
+                while($fach = $faecher_result->fetch_assoc()) {
+                    echo "<option value='" . $fach['faecher_id'] . "'>" . htmlspecialchars($fach['name']) . " (" . htmlspecialchars($fach['dozent']) . ")</option>";
+                }
+                ?>
+            </select><br>
+
+            <label for="newTag">Tag:</label>
+            <select id="newTag">
+                <?php foreach($tage as $t): ?>
+                    <option value="<?= $t ?>"><?= $t ?></option>
+                <?php endforeach; ?>
+            </select><br>
+
+            <label for="newZeitslot">Zeitslot:</label>
+            <select id="newZeitslot">
+                <?php foreach($zeiten as $z): ?>
+                    <option value="<?= $z ?>"><?= $z ?></option>
+                <?php endforeach; ?>
+            </select><br>
+
+            <label for="newRaum">Raum:</label>
+            <input type="text" id="newRaum"><br><br>
+
+            <button id="addEntryButton" onclick="addNewEntry()">Hinzufügen</button>
+            <hr>
+            <div id="schedule-modal-container">Lade Stundenplan...</div>
+            <div class="modal-buttons">
+                <button id="saveBtn">Speichern</button>
+                <button type="button" id="closeBtn">Abbrechen</button>
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="..\javascript\schedule.js"></script>
 </body>
-</html>
+

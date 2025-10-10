@@ -135,16 +135,20 @@
                     );
                     const select = document.getElementById("calendarSelect");
                     select.innerHTML = '';
+
+                    const calendarIds = [];
                     response.result.items.forEach(cal => {
                         const option = document.createElement("option");
                         option.value = cal.id;
                         option.textContent = cal.summary;
                         select.appendChild(option);
+                        calendarIds.push(cal.id);
+                        
                     });
                     if (response.result.items.length) {
                         const firstCalendar = select.value;
                         loadEvents(firstCalendar);
-                        updateIframe(firstCalendar);
+                        updateIframe(calendarIds);
                     }
                 } catch (err) {
                     console.error(err);
@@ -222,7 +226,7 @@
                     }
                     alert("Termin gespeichert");
                     loadEvents(calendarId);
-                    updateIframe(calendarId);
+                    updateIframe();
                 } catch (err) {
                     console.error(err);
                     alert("Fehler: " + err.message);
@@ -233,14 +237,17 @@
             document.getElementById("calendarSelect").addEventListener("change", (e) => {
                 const calId = e.target.value;
                 loadEvents(calId);
-                updateIframe(calId);
+                updateIframe();
             });
 
             // iFrame-URL aktualisieren
-            function updateIframe(calendarId) {
+            function updateIframe(calendarIds) {
                 const iframe = document.getElementById("calendarFrame");
                 const base = "https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=Europe%2FBerlin&showPrint=0&showTitle=0&showTz=0";
-                iframe.src = `${base}&src=${encodeURIComponent(calendarId)}`;
+                
+                const idsToDisplay = calendarIds || Array.from(document.getElementById("calendarSelect").options).map(opt => opt.value).filter(id =>id !== "");
+                const srcParams = idsToDisplay.map(id => `src=${encodeURIComponent(id)}`).join('&');
+                iframe.src = `${base}&${srcParams}`;
             }
 
             // Beim Laden prüfen, ob Token gespeichert ist

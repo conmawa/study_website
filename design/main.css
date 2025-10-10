@@ -33,7 +33,7 @@ iframe {
 }
 
 
-input[type="submit"] {
+input[type="submit"], button#add_subject, button#editScheduleBtn {
     margin-top: 15px;
     padding: 10px;
     background-color: #007BFF;
@@ -45,7 +45,7 @@ input[type="submit"] {
     width: 30%;
 }
 
-input[type="submit"]:hover {
+input[type="submit"]:hover, button#add_subject:hover, button#editScheduleBtn:hover {
     background-color: #0056b3;
 }
 
@@ -53,7 +53,6 @@ input[type="text"], input[type="datetime-local"] , input[type='time'], input[typ
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    width: 100%;
     margin-bottom: 10px;
     width: 10%;
 }
@@ -78,4 +77,111 @@ th, td {
 }
 th {
     background-color: #f2f2f2;
+}
+
+.message {
+    background: #e1fbe1;
+    border: 1px solid #7ad97a;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(3px);
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.modal-overlay[style*="display: block"] {
+    display: flex !important;
+}
+
+.faecher input[type="text"]{
+    width: 80% !important;
+    padding: 10px 12px;
+}
+
+#modal-content {
+    position: absolute;
+    background: #ffffff;
+    top: 50%;
+    left: 50%;
+    padding: 25px 30px;
+    border-radius: 12px;
+    min-width: 300px;
+    max-width: 400px;
+    width: 80% !important;
+    max-height: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    transform: translate(-50%, -50%) scale(0.95);
+    transition: transform 0.2s ease-in-out;
+    animation: popIn 0.25s ease-out forwards;
+}
+
+#modal h2 {
+    margin-top: 0;
+    color: #333;
+    text-align: center;
+    border-bottom: 2px solid #007BFF;
+    padding-bottom: 10px;
+}
+
+/* ==== Inputfelder im Modal ==== */
+#modal input[type="text"] {
+    width: 100% !important;
+    margin-top: 8px;
+    margin-bottom: 15px;
+    padding: 10px;
+    font-size: 15px;
+}
+
+/* ==== Buttons im Modal ==== */
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.modal-buttons button {
+    flex: 1;
+    padding: 10px;
+    font-size: 15px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+.modal-buttons button[type="submit"] {
+    background-color: #007BFF;
+    color: white;
+}
+
+.modal-buttons button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+.modal-buttons button[type="button"] {
+    background-color: #ccc;
+}
+
+.modal-buttons button[type="button"]:hover {
+    background-color: #aaa;
+}
+
+/* ==== Animationen ==== */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
