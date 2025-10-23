@@ -8,7 +8,7 @@ $mysqli = require __DIR__ . '/../database/database.php';
 // --- Nachrichtensystem ---
 $message = "";
 
-// --- Löschen ---
+// --- Fach löschen ---
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete_id'])) {
     $delete_id = intval($_POST['delete_id']); 
     $stmt = $mysqli->prepare("DELETE FROM faecher WHERE faecher_id = ?");
@@ -21,14 +21,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete_id'])) {
     $stmt->close();
 }
 
-// --- Hinzufügen oder Bearbeiten ---
+// --- Fach hinzufügen oder bearbeiten ---
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action'])) {
     $name = trim($_POST['name']);
     $dozent = trim($_POST['dozent']);
-    
+
     if ($_POST['action'] === "add") {
-        $stmt = $mysqli->prepare("INSERT INTO faecher (name, dozent) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $name, $dozent);
+        $stmt = $mysqli->prepare("INSERT INTO faecher (name, dozent) VALUES (?, ?)");
+        $stmt->bind_param("ss", $name, $dozent);
         if ($stmt->execute()) {
             echo json_encode(["success" => true, "message" => "Neues Fach erfolgreich hinzugefügt."]);
         } else {
@@ -40,90 +40,90 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action'])) {
     elseif ($_POST['action'] === "edit") {
         $id = intval($_POST['faecher_id']);
         $stmt = $mysqli->prepare("UPDATE faecher SET name=?, dozent=? WHERE faecher_id=?");
-        $stmt->bind_param("sssi", $name, $dozent, $id);
+        $stmt->bind_param("ssi", $name, $dozent, $id);
         if ($stmt->execute()) {
-            echo json_encode(["succes" => true, "message" => "Fach erfolgreich aktualisiert."]);
+            echo json_encode(["success" => true, "message" => "Fach erfolgreich aktualisiert."]);
         } else {
             echo json_encode(["success" => false, "message" => "Fehler beim Aktualisieren: " . $stmt->error]);
         }
         $stmt->close();
+        exit;
     }
-
 }
 
-// --- Alle Fächer holen ---
+// --- Alle Fächer laden ---
 $subjects_result = $mysqli->query("SELECT * FROM faecher ORDER BY name ASC");
 ?>
 
 <!DOCTYPE html>
 <html lang="de">
-    <head>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" type='text/css' href='../design/main.css' />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="../javascript/subject.js" defer></script>
-        <title>Studium | Fächer</title>
-    </head>
-    <body>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type='text/css' href='../design/main.css' />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../javascript/subject.js" defer></script>
+    <title>Studium | Fächer</title>
+</head>
+<body>
 
-        <h1>Fächerverwaltung</h1>
+    <h1>Fächerverwaltung</h1>
 
-        <?php if (!empty($message)): ?>
-            <div class="message"><?= htmlspecialchars($message) ?></div>
-        <?php endif; ?>
+    <?php if (!empty($message)): ?>
+        <div class="message"><?= htmlspecialchars($message) ?></div>
+    <?php endif; ?>
 
-        <table>
-            <tr>
-                <th>Fach</th>
-                <th>Dozent</th> 
-                <th>Aktionen</th>
-            </tr>
-            <?php if ($subjects_result->num_rows > 0): ?>
-                <?php while ($row = $subjects_result->fetch_assoc()): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($row['name']) ?></td>
-                        <td><?= htmlspecialchars($row['dozent']) ?></td>
-                        <td>
-                            <button style="background:none;border:none;" onclick='openModal("edit", <?= json_encode($row) ?>)'>✏️</button>
-                            <form method="POST" action="" style="display:inline;" onsubmit="return confirm('Fach wirklich löschen?');">
-                                <input type="hidden" name="delete_id" value="<?= htmlspecialchars($row['faecher_id']) ?>">
-                                <button type="submit" title="Löschen" style="background:none;border:none;">🗑️</button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <tr><td colspan="4">Keine Fächer vorhanden</td></tr>
-            <?php endif; ?>
-        </table>
-        
-        <br><bR>
-        <button id="add_subject" onclick="openModal('add')">Neues Fach hinzufügen</button>
-
-        <div id="subjectModalOverlay" class="modal-overlay">
-            <div id="modal-content" action = "">
-                <h2 id="modalTitle">Fach hinzufügen</h2>
-                <div id="schedule-modal-container">
-                    <div class="faecher">
-                        <form id="add-subject-form" method="POST" action="">
-                            <input type="hidden" id="faecher_id" name="faecher_id">
-                            <input type="hidden" id="action" name="action" value="add">
-
-                            <label for="name">Fach:</label><br>
-                            <input type="text" id="name" name="name" required><br><br>
-
-                            <label for="dozent">Dozent:</label><br>
-                            <input type="text" id="dozent" name="dozent" required><br><br>
-
-                            <div class="modal-buttons">
-                                <button type="submit">Speichern</button>
-                                <button type="button" onclick="closeModal()">Abbrechen</button>
-                            </div>
+    <table>
+        <tr>
+            <th>Fach</th>
+            <th>Dozent</th> 
+            <th>Aktionen</th>
+        </tr>
+        <?php if ($subjects_result->num_rows > 0): ?>
+            <?php while ($row = $subjects_result->fetch_assoc()): ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['name']) ?></td>
+                    <td><?= htmlspecialchars($row['dozent']) ?></td>
+                    <td>
+                        <button style="background:none;border:none;cursor:pointer;" 
+                                onclick='openModal("edit", <?= json_encode($row) ?>)'>✏️</button>
+                        <form method="POST" action="" style="display:inline;" 
+                              onsubmit="return confirm('Fach wirklich löschen?');">
+                            <input type="hidden" name="delete_id" value="<?= htmlspecialchars($row['faecher_id']) ?>">
+                            <button type="submit" title="Löschen" style="background:none;border:none;cursor:pointer;">🗑️</button>
                         </form>
-                    </div>
-                    
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <tr><td colspan="3">Keine Fächer vorhanden</td></tr>
+        <?php endif; ?>
+    </table>
+
+    <br><br>
+    <button id="add_subject" onclick="openModal('add')">Neues Fach hinzufügen</button>
+
+    <!-- ===== MODAL ===== -->
+    <div id="subjectModalOverlay" class="modal-overlay">
+        <div id="modal-content">
+            <h2 id="modalTitle">Fach hinzufügen</h2>
+            
+            <form id="add-subject-form" method="POST" action="">
+                <input type="hidden" id="faecher_id" name="faecher_id">
+                <input type="hidden" id="action" name="action" value="add">
+
+                <label for="name">Fach:</label><br>
+                <input type="text" id="name" name="name" required><br><br>
+
+                <label for="dozent">Dozent:</label><br>
+                <input type="text" id="dozent" name="dozent" required><br><br>
+
+                <div class="modal-buttons">
+                    <button type="submit">Speichern</button>
+                    <button type="button" onclick="closeModal()">Abbrechen</button>
                 </div>
-            </div>
+            </form>
         </div>
-    </body>
+    </div>
+
+</body>
 </html>

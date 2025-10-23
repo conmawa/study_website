@@ -104,7 +104,7 @@ while($row = $plan_result->fetch_assoc()) {
             <label for="newRaum">Raum:</label>
             <input type="text" id="newRaum"><br><br>
 
-            <button id="addEntryButton" onclick="addNewEntry()">Hinzufügen</button>
+            <button id="addEntryButton">Hinzufügen</button>
             <hr>
             <div id="schedule-modal-container">Lade Stundenplan...</div>
             <div class="modal-buttons">
