@@ -25,15 +25,7 @@ if (!isset($_SESSION['user_id'])) {
     <h1 id="head">Willkommen <?php echo $_SESSION['vorname'] ?></h1>
     <br>
     <div class="calender">
-        <?php
-            include 'calender/calender.html';
-        ?>
-    </div>
-
-    <div class="stundenplan">
-        <?php
-            include 'plan/stundenplan.php';
-        ?>
+        <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=Europe%2FBerlin&showTitle=0&showNav=0&mode=WEEK&showTz=0&showTabs=0&showPrint=0&src=MjFmNmRmNTNiNjRhYjM3MTcxNTQxOTk0OWM2Y2QwMjFjODMxYTNmZjg4YTE4YzkwMGQyOTlhZTQyZWZmZmVlMUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=ZWJhZjlhZWE4ZWY2N2VkNjFkMDQ2Yzc3MTVjNTZkMjJkNTdhOWE4NjE5YmQ4YTI4ZGMxODYwYzI1N2ExNTdkNUBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=ZDBwaGxrMW1uY2R1dDMzNjY5ZWY2b2hkdXRlYzFiYThAaW1wb3J0LmNhbGVuZGFyLmdvb2dsZS5jb20&color=%23e67c73&color=%23a79b8e&color=%238e24aa" style="border-width:0" frameborder="0" scrolling="yes"></iframe>
     </div>
 
     <div class="noten">

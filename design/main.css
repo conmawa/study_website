@@ -214,4 +214,10 @@ button#closeBtn:hover {
     .modal-buttons {
         flex-direction: column;
     }
+    
+    iframe {
+        max-width: 100% !important;
+        width: auto !important;
+        height: auto !important;
+    }
 }
