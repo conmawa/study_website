@@ -1,5 +1,15 @@
-// subject.js
+
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- SCROLL-POSITION WIEDERHERSTELLEN ---
+    const scrollPos = sessionStorage.getItem('subjectScrollPos');
+    if (scrollPos) {
+        window.scrollTo(0, parseInt(scrollPos));
+    }
+
+    window.addEventListener('scroll', () => {
+        sessionStorage.setItem('subjectScrollPos', window.scrollY);
+    });
 
     // --- ELEMENTE ---
     const modal = document.getElementById('subjectModalOverlay');
@@ -8,8 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const actionField = document.getElementById('action');
     const idField = document.getElementById('faecher_id');
     const fachInput = document.getElementById('name');
-    const raumInput = document.getElementById('raum');
     const dozentInput = document.getElementById('dozent');
+    const semesterInput = document.getElementById('semester');
 
     // --- MODAL ÖFFNEN ---
     window.openModal = function (mode, data = null) {
@@ -21,15 +31,16 @@ document.addEventListener('DOMContentLoaded', () => {
             actionField.value = 'edit';
             idField.value = data.faecher_id;
             fachInput.value = data.name;
-            raumInput.value = data.raum;
             dozentInput.value = data.dozent;
+            // KORREKTUR: Nutzt jetzt den Wert aus dem Daten-Objekt statt der Element-Referenz
+            semesterInput.value = data.semester; 
         } else {
             title.textContent = 'Neues Fach hinzufügen';
             actionField.value = 'add';
             idField.value = '';
             fachInput.value = '';
-            raumInput.value = '';
             dozentInput.value = '';
+            semesterInput.value = '';
         }
     };
 
@@ -49,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         // Grundvalidierung
-        if (!fachInput.value.trim() || !raumInput.value.trim() || !dozentInput.value.trim()) {
+        if (!fachInput.value.trim() || !dozentInput.value.trim() || !semesterInput.value.trim()) {
             alert('Bitte füllen Sie alle Felder aus.');
             return;
         }
@@ -70,26 +81,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const text = await response.text();
 
-            // Versuch, JSON zu parsen – falls möglich
             try {
                 const data = JSON.parse(text);
                 if (data.success) {
-                    alert(data.message || 'Fach gespeichert.');
+                    // Kein alert() nötig, wenn direkt reloaded wird, 
+                    // um den Flow nicht zu unterbrechen.
                     location.reload();
                 } else {
                     alert('Fehler: ' + (data.message || 'Unbekannter Serverfehler.'));
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Speichern';
                 }
             } catch {
-                // Fallback: Textantwort anzeigen
+                // Falls PHP direkt HTML zurückgibt (Fallback)
                 console.log('Serverantwort:', text);
-                location.reload(); // meist Reload nötig, da PHP direkt HTML rendert
+                location.reload(); 
             }
 
         } catch (error) {
             console.error('Fehler beim Speichern:', error);
-            alert('Ein schwerwiegender Fehler ist aufgetreten. Bitte prüfen Sie die Konsole.');
-        } finally {
-            // Button wieder aktivieren
+            alert('Ein schwerwiegender Fehler ist aufgetreten.');
             const submitBtn = form.querySelector('button[type="submit"]');
             submitBtn.disabled = false;
             submitBtn.textContent = 'Speichern';

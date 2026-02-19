@@ -19,14 +19,25 @@ h1#head {
 }
 
 /* ==== Container-Boxen ==== */
-.calender, .faecher, .noten, .stundenplan, .to-do {
-    background: white;
-    padding: 20px;
-    margin: 20px auto;
+.calender, .faecher, .noten {
+    box-sizing: border-box; /* WICHTIG! */
     width: 80%;
+    margin: 20px auto;
+    padding: 20px; /* Einheitliches Padding für alle */
+    background: white;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    text-align: center;
+}
+
+/* Kalender-Spezifisch: Padding entfernen, damit das Iframe bündig abschließt */
+.calender {
+    padding: 0; 
+    overflow: hidden;
+}
+
+.calender iframe {
+    width: 100% !important; /* Füllt die 80% des Hauptcontainers komplett aus */
+    display: block;
 }
 
 /* ==== Tabellen ==== */
@@ -56,7 +67,7 @@ tr:hover {
 }
 
 /* ==== Buttons ==== */
-input[type="submit"], button#add_subject, button#editScheduleBtn {
+input[type="submit"], button#add_subject {
     margin-top: 15px;
     padding: 10px 16px;
     background-color: #007BFF;
@@ -70,13 +81,12 @@ input[type="submit"], button#add_subject, button#editScheduleBtn {
 }
 
 input[type="submit"]:hover,
-button#add_subject:hover,
-button#editScheduleBtn:hover {
+button#add_subject:hover{
     background-color: #0056b3;
 }
 
 /* ==== Inputfelder ==== */
-input[type="text"], input[type="datetime-local"], input[type="time"], input[type="number"], input[type="date"] {
+input[type="text"], input[type="number"] {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -216,8 +226,6 @@ button#closeBtn:hover {
     }
     
     iframe {
-        max-width: 100% !important;
-        width: auto !important;
-        height: auto !important;
+        height: 400px;
     }
 }
