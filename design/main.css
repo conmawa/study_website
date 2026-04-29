@@ -85,7 +85,7 @@ tr:hover {
 }
 
 /* ==== Buttons ==== */
-input[type="submit"], button#add_subject {
+input[type="submit"], button#add_subject, button[type="button"], button[type="submit"] {
     margin-top: 15px;
     padding: 10px 16px;
     background-color: #007BFF;
@@ -96,20 +96,20 @@ input[type="submit"], button#add_subject {
     font-size: 16px;
     transition: background-color 0.2s ease-in-out;
     width: 30%;
+    min-width: fit-content;
 }
 
-input[type="submit"]:hover,
-button#add_subject:hover{
+input[type="submit"]:hover, button#add_subject:hover, button[type="button"]:hover, button[type="submit"]:hover {
     background-color: #0056b3;
 }
 
 /* ==== Inputfelder ==== */
-input[type="text"], input[type="number"] {
+input[type="text"], input[type="number"], select {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-bottom: 10px;
-    width: 10%;
+    width: 20%;
 }
 
 /* ==== MODAL-OVERLAY ==== */
@@ -253,3 +253,9 @@ button#closeBtn:hover {
         min-height: 800px;
     }
 }
+
+
+.filter-section {
+    padding: 10px;
+}
+

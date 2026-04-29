@@ -9,7 +9,7 @@ $mysqli = require __DIR__ . '/../database/database.php';
 $message = "";
 
 // --- Filter-Logik & Sortierung festlegen ---
-$filter_semester = isset($_GET['filter_semester']) ? trim($_GET['filter_semester']) : '';
+$filter_semester = trim($_GET['filter_semester'] ?? '');
 
 // --- Fach löschen ---
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete_id'])) {
@@ -57,9 +57,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action'])) {
 
 // --- Daten abrufen mit dynamischer Sortierung ---
 if ($filter_semester !== '') {
+    $search_term = "%" . $filter_semester . "%";
     // Wenn gefiltert: Nur das gewählte Semester, alphabetisch nach Fachname
-    $stmt = $mysqli->prepare("SELECT * FROM faecher WHERE semester = ? ORDER BY name ASC");
-    $stmt->bind_param("s", $filter_semester);
+    $stmt = $mysqli->prepare("SELECT * FROM faecher WHERE semester LIKE ? ORDER BY name ASC");
+    $stmt->bind_param("s", $search_term);
     $stmt->execute();
     $subjects_result = $stmt->get_result();
 } else {
@@ -93,6 +94,7 @@ if ($filter_semester !== '') {
             <button type="submit">Filtern</button>
             
             <?php if ($filter_semester !== ''): ?>
+                <br><br>
                 <a href="<?= $_SERVER['PHP_SELF'] ?>">
                     <button type="button">Filter aufheben</button>
                 </a>
@@ -100,6 +102,8 @@ if ($filter_semester !== '') {
         </form>
     </div>
     
+    <br><br>
+
     <table>
         <thead>
             <tr>

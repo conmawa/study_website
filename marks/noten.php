@@ -5,7 +5,7 @@ ini_set('display_errors', 1);
 $mysqli = require __DIR__ . '/../database/database.php';
 
 // Fetch subjects
-$subjects_sql = "SELECT * FROM faecher Order By name ASC";
+$subjects_sql = "SELECT * FROM faecher Order By semester, name";
 $subjects_result = $mysqli->query($subjects_sql);
 
 // Note löschen, wenn delete_id übergeben wird
@@ -47,17 +47,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['fach']) && !empty($_P
     <table>
         <tr>
             <th>Fach</th>
+            <th>Semester</th>
             <th>Wert</th>
             <th>Aktionen</th>
         </tr>
         <?php
-        $marks_sql = "SELECT noten.noten_id, faecher.name, noten.wert FROM noten INNER JOIN faecher ON noten.faecher_id = faecher.faecher_id ORDER BY faecher.name";
+        $marks_sql = "SELECT noten.noten_id, faecher.name, faecher.semester, noten.wert FROM noten INNER JOIN faecher ON noten.faecher_id = faecher.faecher_id ORDER BY faecher.semester, faecher.name";
         $marks_result = $mysqli->query($marks_sql);
 
         if ($marks_result->num_rows > 0) {
             while($row = $marks_result->fetch_assoc()) {
                 echo "<tr>
                         <td>" . htmlspecialchars($row['name']) . "</td>
+                        <td>" . htmlspecialchars($row['semester']) . "</td>
                         <td>" . htmlspecialchars($row['wert']) . "</td>
                         <td>
                             <form method='POST' action='' style='display:inline;'>
@@ -76,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['fach']) && !empty($_P
         $average_result = $mysqli->query($average_sql);
         if ($average_result->num_rows > 0) {
             $average_row = $average_result->fetch_assoc();
-            echo "<tr><td><strong>Durchschnitt</strong></td><td><strong>" . round($average_row['average_wert'], 2) . "</strong></td><td></td></tr>";
+            echo "<tr><td><strong>Durchschnitt</strong></td><td><strong>" . round($average_row['average_wert'], 2) . "</strong></td><td></td><td></td></tr>";
         }
         ?>
     </table>
