@@ -30,7 +30,7 @@ if (!isset($_SESSION['user_id'])) {
 
     <div class="noten">
         <?php
-            include 'marks/noten.php';
+            include 'marks/marks.php';
         ?>
     </div>
     

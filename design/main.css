@@ -85,7 +85,7 @@ tr:hover {
 }
 
 /* ==== Buttons ==== */
-input[type="submit"], button#add_subject, button[type="button"], button[type="submit"] {
+input[type="submit"], button#add_subject, button#add_mark, button[type="button"], button[type="submit"] {
     margin-top: 15px;
     padding: 10px 16px;
     background-color: #007BFF;
@@ -99,7 +99,7 @@ input[type="submit"], button#add_subject, button[type="button"], button[type="su
     min-width: fit-content;
 }
 
-input[type="submit"]:hover, button#add_subject:hover, button[type="button"]:hover, button[type="submit"]:hover {
+input[type="submit"]:hover, button#add_subject:hover, button#add_mark, button[type="button"]:hover, button[type="submit"]:hover {
     background-color: #0056b3;
 }
 

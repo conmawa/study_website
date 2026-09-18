@@ -59,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action'])) {
 if ($filter_semester !== '') {
     $search_term = "%" . $filter_semester . "%";
     // Wenn gefiltert: Nur das gewählte Semester, alphabetisch nach Fachname
-    $stmt = $mysqli->prepare("SELECT * FROM faecher WHERE semester LIKE ? ORDER BY name ASC");
+    $stmt = $mysqli->prepare("SELECT * FROM faecher WHERE semester LIKE ? ORDER BY semester ASC, name ASC");
     $stmt->bind_param("s", $search_term);
     $stmt->execute();
     $subjects_result = $stmt->get_result();
@@ -89,7 +89,7 @@ if ($filter_semester !== '') {
     <div class="filter-section">
         <form method="GET" action="">
             <label for="filter_semester">Semester filtern:</label>
-            <input type="text" name="filter_semester" id="filter_semester" 
+            <input type="text" name="filter_semester" id="filter_semester" style="width: 75px;"
                    value="<?= htmlspecialchars($filter_semester) ?>" placeholder="z.B. 1">
             <button type="submit">Filtern</button>
             
@@ -121,12 +121,12 @@ if ($filter_semester !== '') {
                         <td><?= htmlspecialchars($row['dozent']) ?></td>
                         <td><?= htmlspecialchars($row['semester']) ?></td>
                         <td>
-                            <button style="background:none;border:none;cursor:pointer;" 
+                            <button style="background:none;border:none;cursor:pointer;padding:0;margin:0;" title="Bearbeiten"
                                     onclick='openModal("edit", <?= json_encode($row) ?>)'>✏️</button>
                             <form method="POST" action="" style="display:inline;" 
                                   onsubmit="return confirm('Fach wirklich löschen?');">
                                 <input type="hidden" name="delete_id" value="<?= htmlspecialchars($row['faecher_id']) ?>">
-                                <button type="submit" title="Löschen" style="background:none;border:none;cursor:pointer;">🗑️</button>
+                                <button type="submit" title="Löschen" style="background:none;border:none;cursor:pointer;padding:0;margin:0;">🗑️</button>
                             </form>
                         </td>
                     </tr>
