@@ -109,7 +109,8 @@ input[type="text"], input[type="number"], select {
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-bottom: 10px;
-    width: 20%;
+    width: auto;
+    min-width: max-content;
 }
 
 /* ==== MODAL-OVERLAY ==== */

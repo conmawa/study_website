@@ -55,6 +55,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action'])) {
     }
 }
 
+// Fetch subjects and group them by semester for the dropdowns
+$subjects_sql = "SELECT * FROM faecher ORDER BY semester, name";
+$subjects_result = $mysqli->query($subjects_sql);
+
+$subjects_by_semester = [];
+$semesters = [];
+
+if ($subjects_result->num_rows > 0) {
+    while($row = $subjects_result->fetch_assoc()) {
+        $sem = $row['semester'];
+        $fach = $row['name'];
+
+        // Build an array of unique semesters
+        if (!in_array($sem, $semesters)) {
+            $semesters[] = $sem;
+        }
+        // Group subjects under their respective semester
+        $subjects_by_semester[$sem][] = $fach;
+    }
+}
+
+
 // --- Daten abrufen mit dynamischer Sortierung ---
 if ($filter_semester !== '') {
     $search_term = "%" . $filter_semester . "%";
@@ -89,9 +111,15 @@ if ($filter_semester !== '') {
     <div class="filter-section">
         <form method="GET" action="">
             <label for="filter_semester">Semester filtern:</label>
-            <input type="text" name="filter_semester" id="filter_semester" style="width: 75px;"
-                   value="<?= htmlspecialchars($filter_semester) ?>" placeholder="z.B. 1">
-            <button type="submit">Filtern</button>
+            <select name="filter_semester" id="filter_semester" onchange="this.form.submit()">
+                <option value="">Alle Semester</option>
+                <?php
+                foreach($semesters as $sem) {
+                    $selected = ($filter_semester === (string)$sem) ? "selected" : "";
+                    echo "<option value='" . htmlspecialchars($sem) . "' $selected>" . htmlspecialchars($sem) . "</option>";
+                }
+                ?>
+            </select>
             
             <?php if ($filter_semester !== ''): ?>
                 <br><br>

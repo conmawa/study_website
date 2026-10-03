@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dozentInput = document.getElementById('dozent');
     const semesterInput = document.getElementById('semester');
 
+
     // --- MODAL ÖFFNEN ---
     window.openModal = function (mode, data = null) {
         modal.style.display = 'flex';

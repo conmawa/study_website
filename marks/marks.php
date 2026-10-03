@@ -178,11 +178,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['fach']) && isset($_PO
             <br><br>
 
             <label for="wert">Notenwert:</label>
-            <input type="number" step="0.1" min="0" max="15" name="wert" id="wert" required>
+            <input type="number" min="0" max="15" name="wert" id="wert" required>
 
             <br><br>
 
-            <div class="modal-buttons" style="display: flex; gap: 10px;">
                 <input type="submit" value="Note hinzufügen">
                 <button type="button" onclick="closeMarkModal()">Abbrechen</button>
             </div>
