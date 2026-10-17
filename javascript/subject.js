@@ -1,29 +1,19 @@
-
 document.addEventListener('DOMContentLoaded', () => {
-
-    // --- SCROLL-POSITION WIEDERHERSTELLEN ---
     const scrollPos = sessionStorage.getItem('subjectScrollPos');
-    if (scrollPos) {
-        window.scrollTo(0, parseInt(scrollPos));
-    }
+    if (scrollPos) window.scrollTo(0, parseInt(scrollPos));
+    window.addEventListener('scroll', () => sessionStorage.setItem('subjectScrollPos', window.scrollY));
 
-    window.addEventListener('scroll', () => {
-        sessionStorage.setItem('subjectScrollPos', window.scrollY);
-    });
-
-    // --- ELEMENTE ---
     const modal = document.getElementById('subjectModalOverlay');
     const title = document.getElementById('modalTitle');
-    const form = modal.querySelector('form');
+    const form = modal?.querySelector('form');
     const actionField = document.getElementById('action');
-    const idField = document.getElementById('faecher_id');
-    const fachInput = document.getElementById('name');
-    const dozentInput = document.getElementById('dozent');
+    const idField = document.getElementById('subjectId');
+    const subjectInput = document.getElementById('subjectName');
+    const lecturerInput = document.getElementById('lecturer');
     const semesterInput = document.getElementById('semester');
 
-
-    // --- MODAL ÖFFNEN ---
-    window.openModal = function (mode, data = null) {
+    window.openModal = (mode, data = null) => {
+        if (!modal) return;
         modal.style.display = 'flex';
         modal.classList.add('active');
 
@@ -31,80 +21,70 @@ document.addEventListener('DOMContentLoaded', () => {
             title.textContent = 'Fach bearbeiten';
             actionField.value = 'edit';
             idField.value = data.faecher_id;
-            fachInput.value = data.name;
-            dozentInput.value = data.dozent;
-            // KORREKTUR: Nutzt jetzt den Wert aus dem Daten-Objekt statt der Element-Referenz
-            semesterInput.value = data.semester; 
+            subjectInput.value = data.name;
+            lecturerInput.value = data.dozent;
+            semesterInput.value = data.semester;
         } else {
             title.textContent = 'Neues Fach hinzufügen';
             actionField.value = 'add';
             idField.value = '';
-            fachInput.value = '';
-            dozentInput.value = '';
+            subjectInput.value = '';
+            lecturerInput.value = '';
             semesterInput.value = '';
         }
     };
 
-    // --- MODAL SCHLIESSEN ---
-    window.closeModal = function () {
+    window.closeModal = () => {
+        if (!modal) return;
         modal.style.display = 'none';
         modal.classList.remove('active');
     };
 
-    // --- MODAL KLICK AUF HINTERGRUND ---
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
+    modal?.addEventListener('click', (e) => {
+        if (e.target === modal) window.closeModal();
     });
 
-    // --- FORMULAR SENDEN ---
-    form.addEventListener('submit', async (e) => {
+    form?.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Grundvalidierung
-        if (!fachInput.value.trim() || !dozentInput.value.trim() || !semesterInput.value.trim()) {
+        if (!subjectInput.value.trim() || !lecturerInput.value.trim() || !semesterInput.value.trim()) {
             alert('Bitte füllen Sie alle Felder aus.');
             return;
         }
 
         const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[type="submit"]');
 
         try {
-            // Button deaktivieren während des Sendens
-            const submitBtn = form.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Speichern...';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Speichern...';
+            }
 
-            // Anfrage senden (an dieselbe PHP-Seite)
-            const response = await fetch('', {
-                method: 'POST',
-                body: formData
-            });
-
+            const response = await fetch('', { method: 'POST', body: formData });
             const text = await response.text();
 
             try {
                 const data = JSON.parse(text);
                 if (data.success) {
-                    // Kein alert() nötig, wenn direkt reloaded wird, 
-                    // um den Flow nicht zu unterbrechen.
                     location.reload();
                 } else {
                     alert('Fehler: ' + (data.message || 'Unbekannter Serverfehler.'));
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Speichern';
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Speichern';
+                    }
                 }
             } catch {
-                // Falls PHP direkt HTML zurückgibt (Fallback)
-                console.log('Serverantwort:', text);
-                location.reload(); 
+                location.reload();
             }
-
         } catch (error) {
-            console.error('Fehler beim Speichern:', error);
+            console.error('Error saving:', error);
             alert('Ein schwerwiegender Fehler ist aufgetreten.');
-            const submitBtn = form.querySelector('button[type="submit"]');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Speichern';
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Speichern';
+            }
         }
     });
 });
