@@ -1,16 +1,17 @@
 <?php
 if (!isset($_SESSION['user_id'])) exit;
 
-// Only require the database if the connection doesn't already exist
+// Only require the database if it hasn't been loaded by another file yet
 if (!isset($mysqli)) {
     $mysqli = require __DIR__ . '/../database/database.php';
 }
 
+
 $message = "";
 $filterSemester = trim($_GET['filterSemester'] ?? '');
 
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['deleteId'])) {
-    $deleteId = intval($_POST['deleteId']);
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['deleteSubjectId'])) {
+    $deleteId = intval($_POST['deleteSubjectId']);
     $stmt = $mysqli->prepare("DELETE FROM faecher WHERE faecher_id = ?");
     $stmt->bind_param("i", $deleteId);
     if ($stmt->execute()) {
@@ -21,12 +22,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['deleteId'])) {
     $stmt->close();
 }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action'])) {
-    $subjectName = trim($_POST['subjectName']);
-    $lecturer = trim($_POST['lecturer']);
-    $semester = trim($_POST['semester']);
 
-    ob_clean();
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action'])) {
+    $subjectName = trim($_POST['subjectName'] ?? '');
+    $lecturer = trim($_POST['lecturer'] ?? '');
+    $semester = trim($_POST['semester'] ?? '');
+
+    // Safely clear all output buffers to prevent HTML from corrupting the JSON
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
 
     if ($_POST['action'] === "add") {
         $stmt = $mysqli->prepare("INSERT INTO faecher (name, dozent, semester) VALUES (?, ?, ?)");
@@ -35,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action'])) {
         $stmt->close();
         exit;
     } elseif ($_POST['action'] === "edit") {
-        $id = intval($_POST['subjectId']);
+        $id = intval($_POST['subjectId'] ?? 0);
         $stmt = $mysqli->prepare("UPDATE faecher SET name=?, dozent=?, semester=? WHERE faecher_id=?");
         $stmt->bind_param("sssi", $subjectName, $lecturer, $semester, $id);
         echo json_encode(["success" => $stmt->execute(), "message" => $stmt->error ?: "Erfolgreich aktualisiert."]);
@@ -104,9 +109,9 @@ if ($filterSemester !== '') {
                 <td><?= htmlspecialchars($row['dozent']) ?></td>
                 <td><?= htmlspecialchars($row['semester']) ?></td>
                 <td>
-                    <button style="background:none;border:none;cursor:pointer;padding:0;margin:0;" onclick='openModal("edit", <?= json_encode($row) ?>)'>✏️</button>
+                    <button style="background:none;border:none;cursor:pointer;padding:0;margin:0;" onclick='openSubjectModal("edit", <?= json_encode($row) ?>)'>✏️</button>
                     <form method="POST" action="" style="display:inline;" onsubmit="return confirm('Fach wirklich löschen?');">
-                        <input type="hidden" name="deleteId" value="<?= htmlspecialchars($row['faecher_id']) ?>">
+                        <input type="hidden" name="deleteSubjectId" value="<?= htmlspecialchars($row['faecher_id']) ?>">
                         <button type="submit" style="background:none;border:none;cursor:pointer;padding:0;margin:0;">🗑️</button>
                     </form>
                 </td>
@@ -119,14 +124,14 @@ if ($filterSemester !== '') {
 </table>
 
 <br><br>
-<button id="add_subject" onclick="openModal('add')">Neues Fach hinzufügen</button>
+<button id="add_subject" onclick="openSubjectModal('add')">Neues Fach hinzufügen</button>
 
 <div id="subjectModalOverlay" class="modal-overlay">
     <div id="modal-content">
-        <h2 id="modalTitle">Fach hinzufügen</h2>
+        <h2 id="subjectModalTitle">Fach hinzufügen</h2>
         <form id="add-subject-form" method="POST" action="">
             <input type="hidden" id="subjectId" name="subjectId">
-            <input type="hidden" id="action" name="action" value="add">
+            <input type="hidden" id="subjectAction" name="action" value="add">
 
             <label for="subjectName">Fach:</label><br>
             <input type="text" id="subjectName" name="subjectName" required><br><br>
@@ -134,12 +139,12 @@ if ($filterSemester !== '') {
             <label for="lecturer">Dozent:</label><br>
             <input type="text" id="lecturer" name="lecturer" required><br><br>
 
-            <label for="semester">Semester:</label><br>
-            <input type="text" id="semester" name="semester" required><br><br>
+            <label for="subjectSemester">Semester:</label><br>
+            <input type="text" id="subjectSemester" name="semester" required><br><br>
 
             <div class="modal-buttons">
                 <button type="submit">Speichern</button>
-                <button type="button" onclick="closeModal()">Abbrechen</button>
+                <button type="button" onclick="closeSubjectModal()">Abbrechen</button>
             </div>
         </form>
     </div>

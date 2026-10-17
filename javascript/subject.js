@@ -4,15 +4,15 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', () => sessionStorage.setItem('subjectScrollPos', window.scrollY));
 
     const modal = document.getElementById('subjectModalOverlay');
-    const title = document.getElementById('modalTitle');
-    const form = modal?.querySelector('form');
-    const actionField = document.getElementById('action');
+    const title = document.getElementById('subjectModalTitle');
+    const form = document.getElementById('add-subject-form');
+    const actionField = document.getElementById('subjectAction');
     const idField = document.getElementById('subjectId');
     const subjectInput = document.getElementById('subjectName');
     const lecturerInput = document.getElementById('lecturer');
-    const semesterInput = document.getElementById('semester');
+    const semesterInput = document.getElementById('subjectSemester');
 
-    window.openModal = (mode, data = null) => {
+    window.openSubjectModal = (mode, data = null) => {
         if (!modal) return;
         modal.style.display = 'flex';
         modal.classList.add('active');
@@ -34,14 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    window.closeModal = () => {
+    window.closeSubjectModal = () => {
         if (!modal) return;
         modal.style.display = 'none';
         modal.classList.remove('active');
     };
 
     modal?.addEventListener('click', (e) => {
-        if (e.target === modal) window.closeModal();
+        if (e.target === modal) window.closeSubjectModal();
     });
 
     form?.addEventListener('submit', async (e) => {

@@ -1,11 +1,11 @@
 <?php
 if (!isset($_SESSION['user_id'])) exit;
 
-// Only require the database if the connection doesn't already exist
+// Only require the database if it hasn't been loaded by another file yet
 if (!isset($mysqli)) {
     $mysqli = require __DIR__ . '/../database/database.php';
 }
-// Helper function to calculate averages cleanly
+
 function getAverageGrade($mysqli, $condition) {
     $sql = "SELECT AVG(wert) as average FROM noten JOIN faecher ON noten.faecher_id = faecher.faecher_id WHERE $condition";
     return $mysqli->query($sql)->fetch_assoc()['average'] ?? 0;
@@ -24,8 +24,8 @@ if ($subjectsResult->num_rows > 0) {
     }
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['deleteId']) && !isset($_POST['action'])) {
-    $deleteId = intval($_POST['deleteId']);
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['deleteMarkId'])) {
+    $deleteId = intval($_POST['deleteMarkId']);
     $stmt = $mysqli->prepare("DELETE FROM noten WHERE noten_id = ?");
     $stmt->bind_param("i", $deleteId);
     if ($stmt->execute()) $message = "Note erfolgreich gelöscht.";
@@ -33,10 +33,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['deleteId']) && !isset(
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['subject']) && isset($_POST['grade']) && !isset($_POST['deleteId'])) {
-    $subject = $_POST['subject'];
+    $subject = trim($_POST['subject']);
     $grade = floatval($_POST['grade']);
 
-    ob_clean();
+    // Safely clear output buffer
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
 
     $stmt = $mysqli->prepare("INSERT INTO noten (wert, faecher_id) VALUES (?, (SELECT faecher_id FROM faecher WHERE name = ? LIMIT 1))");
     $stmt->bind_param("ds", $grade, $subject);
@@ -65,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['subject']) && isset($
                     <td>" . htmlspecialchars($row['wert']) . "</td>
                     <td>
                         <form method='POST' action='' style='display:inline;'>
-                            <input type='hidden' name='deleteId' value='" . $row['noten_id'] . "'>
+                            <input type='hidden' name='deleteMarkId' value='" . $row['noten_id'] . "'>
                             <button type='submit' style='border:none;background:none;cursor:pointer;'>🗑️</button>
                         </form>
                     </td>
@@ -102,14 +105,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['subject']) && isset($
 <div id="markModalOverlay" class="modal-overlay" style="display: none;">
     <div id="modal-content">
         <h2 id="markModalTitle">Neue Note hinzufügen</h2>
-        <form method="post" action="">
-            <label for="semester">Semester:</label>
-            <select name="semester" id="semester" required>
+        <form id="add-mark-form" method="post" action="">
+            <label for="markSemester">Semester:</label>
+            <select name="semester" id="markSemester" required>
                 <?php foreach($semesters as $sem) echo "<option value='" . htmlspecialchars($sem) . "'>" . htmlspecialchars($sem) . "</option>"; ?>
             </select>
 
-            <label for="subject">Fach:</label>
-            <select name="subject" id="subject" required></select><br><br>
+            <label for="markSubject">Fach:</label>
+            <select name="subject" id="markSubject" required></select><br><br>
 
             <label for="grade">Notenwert:</label>
             <input type="number" min="0" max="15" name="grade" id="grade" required><br><br>

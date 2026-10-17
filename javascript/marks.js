@@ -4,9 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', () => sessionStorage.setItem('marksScrollPos', window.scrollY));
 
     const modal = document.getElementById('markModalOverlay');
-    const form = modal?.querySelector('form');
-    const semesterSelect = document.getElementById('semester');
-    const subjectSelect = document.getElementById('subject');
+    const form = document.getElementById('add-mark-form');
+    const semesterSelect = document.getElementById('markSemester');
+    const subjectSelect = document.getElementById('markSubject');
     const gradeInput = document.getElementById('grade');
 
     const subjectsData = window.subjectsData || {};
@@ -31,13 +31,18 @@ document.addEventListener('DOMContentLoaded', () => {
     window.openMarkModal = () => {
         if (modal) {
             modal.style.display = 'flex';
+            modal.classList.add('active'); // Hinzugefügt
             if (gradeInput) gradeInput.value = '';
         }
     };
 
     window.closeMarkModal = () => {
-        if (modal) modal.style.display = 'none';
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('active'); // Hinzugefügt
+        }
     };
+
 
     modal?.addEventListener('click', (e) => {
         if (e.target === modal) window.closeMarkModal();
